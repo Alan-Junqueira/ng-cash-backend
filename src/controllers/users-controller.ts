@@ -1,7 +1,11 @@
+import dotenv from "dotenv"
 import { Request, Response } from "express"
+import JWT from "jsonwebtoken"
+
 import { Account, User } from "../models"
 import { createNewAccount } from "../utils/createNewAccount"
 
+dotenv.config()
 
 export const usersController = {
   // GET /users
@@ -39,7 +43,13 @@ export const usersController = {
 
             await user.save()
 
-            return res.status(201).json(user)
+            const token = JWT.sign(
+              { id: user.id, username },
+              process.env.JWT_SECRET_KEY as string,
+              { expiresIn: "24h" }
+            )
+
+            return res.status(201).json({status: true, user, token} )
           } else {
             await user.save()
 
@@ -126,7 +136,12 @@ export const usersController = {
       }
 
       if (user.authenticate(password)) {
-        res.status(202).json(user)
+        const token = JWT.sign(
+          { id: user.id, username },
+          process.env.JWT_SECRET_KEY as string,
+          { expiresIn: "24h" }
+        )
+        res.status(202).json({ status: true, username, token })
       } else {
         res.status(401).json({ message: "Senha incorreta" })
       }

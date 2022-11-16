@@ -44,6 +44,5 @@ export const Transaction = sequelize.define<ITransactionInstance>(
       onDelete: "RESTRICT"
     },
     value: DataTypes.INTEGER,
-    createdAt: DataTypes.DATE
   }
 )

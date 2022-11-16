@@ -1,7 +1,8 @@
 import { Request, Response } from "express"
-import { Account } from "../models"
+import { Account, User } from "../models"
 import { QueryInterface } from "sequelize"
 import { updateBalanceValue } from "../utils/updateBalanceValue"
+import JWT from 'jsonwebtoken'
 
 export const accountsController = {
   // GET /accounts
@@ -67,46 +68,6 @@ export const accountsController = {
       }
     }
   },
-  // PUT /accounts/:id/transference
-  transference: async (req: Request, res: Response) => {
-    const { id } = req.params
-    const { cashInAccountId, cashIn } = req.body
-
-    const accountToOutMoney = await Account.findByPk(id)
-
-    if (accountToOutMoney === null) { res.status(404).send({ message: "Conta não encoutrada" }) }
-
-    try {
-      await Account.update(
-        {
-          balance: await updateBalanceValue(cashInAccountId, +cashIn)
-        }, {
-        where: {
-          id: cashInAccountId
-        }
-      }
-      )
-
-      await Account.update(
-        {
-          balance: await updateBalanceValue(+id, -cashIn)
-        }, {
-        where: {
-          id
-        }
-      }
-      )
-
-      const updatedIncomeAccout = await Account.findByPk(id)
-      const updatedIncomeValue = updatedIncomeAccout?.balance
-
-      res.status(201).json({ saldo: `${updatedIncomeValue}` })
-    } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message })
-      }
-    }
-  },
   // DELETE /accounts/:id
   delete: async (req: Request, res: Response) => {
     const { id } = req.params
@@ -121,4 +82,33 @@ export const accountsController = {
       }
     }
   },
+  getBalance: async (req: Request, res: Response) => {
+    const { token } = req.body
+
+    try {
+      const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY as string) as JWT.JwtPayload
+      const userId: number = decoded.id
+
+      const user = await User.findByPk(userId)
+      if (user) {
+        const userAccountId = user.accountId
+
+        if (userAccountId === null) {
+          return res.send({ message: "Usuário não possui conta" })
+        }
+
+        const userAccount = await Account.findByPk(userAccountId)
+
+        if (userAccount) {
+          const balance = userAccount.balance
+          return res.send(balance)
+        }
+      }
+
+    } catch (error) {
+
+    }
+
+
+  }
 }
