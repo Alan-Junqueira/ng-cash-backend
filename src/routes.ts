@@ -30,14 +30,6 @@ router.post(
   '/transactions/get-all-user-transactions',
   transactionsController.getAllUserTransactions
 )
-router.post(
-  '/transactions/get-all-user-outcome-transactions',
-  transactionsController.getAllUserOutcomeTransactions
-)
-router.post(
-  '/transactions/get-all-user-income-transactions',
-  transactionsController.getAllUserIncomeTransactions
-)
 
 router.get('/validate', Auth.private)
 

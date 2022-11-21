@@ -6,7 +6,8 @@
   "scripts": {
     "createdb": "sequelize-cli db:create",
     "migrate": "sequelize-cli db:migrate",
-    "dev": "npm run createdb && npm run migrate && ts-node-dev src/app.ts"
+    "dev": "npm run createdb && npm run migrate && ts-node-dev src/app.ts",
+    "start": "ts-node-dev src/app.ts"
   },
   "keywords": [],
   "author": "",
