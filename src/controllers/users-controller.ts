@@ -11,7 +11,9 @@ export const usersController = {
   // GET /users
   index: async (req: Request, res: Response) => {
     try {
-      const users = await User.findAll()
+      const users = await User.findAll({
+        order: ['id']
+      })
 
       return res.json(users)
     } catch (error) {
@@ -22,10 +24,16 @@ export const usersController = {
   },
   // POST /users
   save: async (req: Request, res: Response) => {
-    const { username, password } = req.body
+    const { username, password } = req.body.data
     let initialBalance = 100
 
-    if (username.length >= 3) {
+    if (!username || !password) {
+      return res.send({ message: "Dados incompletos" })
+    }
+
+    let regexPassword = new RegExp(/^(?=.*\d)(?=.*[A-Z])[0-9a-zA-Z$]{8,}$/)
+
+    if (username.length >= 3 && regexPassword.test(password)) {
       try {
         const user = User.build({
           username, password
@@ -49,7 +57,16 @@ export const usersController = {
               { expiresIn: "24h" }
             )
 
-            return res.status(201).json({status: true, user, token} )
+            return res.status(201).json({
+              status: true,
+              user: {
+                token,
+                accountId: newAccount.id,
+                username,
+                id: user.id
+              },
+              message: 'Conta criada com sucesso'
+            })
           } else {
             await user.save()
 
@@ -57,7 +74,7 @@ export const usersController = {
           }
 
         } else {
-          return res.status(404).send({ message: "Usuário não criado" })
+          return res.status(404).json({ message: "Usuário já existe" })
         }
 
       } catch (error) {
@@ -66,7 +83,7 @@ export const usersController = {
         }
       }
     } else {
-      return res.status(406).send({ message: "Usuário deve ter no minimo 3 digitos." })
+      return res.status(406).json({ message: { usuario: "Usuário deve ter no mínimo 3 digitos", senha: "Senha deve ter no mínimo 8 digitos, 1 letra maiúscula e 1 número" } })
     }
   },
   // GET /users/:id  
@@ -126,7 +143,7 @@ export const usersController = {
     }
   },
   login: async (req: Request, res: Response) => {
-    const { username, password } = req.body
+    const { username, password } = req.body.data
 
     try {
       const user = await User.findOne({ where: { username } })
@@ -141,7 +158,11 @@ export const usersController = {
           process.env.JWT_SECRET_KEY as string,
           { expiresIn: "24h" }
         )
-        res.status(202).json({ status: true, username, token })
+        res.status(202).json({
+          status: true,
+          user: { username, token, id: user.id, accountId: user.accountId },
+          message: "Login Realizado com sucesso"
+        })
       } else {
         res.status(401).json({ message: "Senha incorreta" })
       }
@@ -151,5 +172,49 @@ export const usersController = {
         return res.status(400).json({ message: error.message })
       }
     }
+  },
+  getUserByToken: async (req: Request, res: Response) => {
+    const { token } = req.body.data
+
+    if (token) {
+      try {
+        const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY as string) as JWT.JwtPayload
+        if (decoded) {
+
+          const user = await User.findByPk(decoded.id)
+          if (user) {
+            const { accountId, username, id, } = user
+            return res.json({
+              status: true,
+              user: {
+                accountId,
+                username,
+                id
+              }
+            })
+            // const userAccountId = user.accountId
+
+            // if (userAccountId === null) {
+            //   return res.send({ message: "Faça login para acessar o saldo da conta" })
+            // }
+
+            // const userAccount = await Account.findByPk(userAccountId)
+
+            // if (userAccount) {
+            //   const balance = userAccount.balance
+            //   return res.json(balance)
+            // } else {
+            //   return res.status(404).json({ message: 'Conta não encontrada' })
+            // }
+          }
+        }
+
+      } catch (error) {
+
+      }
+    } else {
+      return res.status(401).json({ message: "Token de autenticação inválido" })
+    }
+    // return console.log('DECODED:', user.accountId)
   }
 }

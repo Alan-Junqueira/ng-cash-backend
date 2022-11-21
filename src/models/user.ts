@@ -27,11 +27,11 @@ export const User = sequelize.define<IUserInstance>('users', {
     },
     validate: {
       notEmpty: {
-        msg: "Este campo não pode ser vazio"
+        msg: "Usuário não pode ser vazio"
       },
       len: {
         args: [3, 30],
-        msg: "Este campo deve ter no mínimo 3 caractéres, e no máximo 30 caractéres"
+        msg: "Usuário deve ter no mínimo 3 caractéres, e no máximo 30 caractéres"
       },
     }
   },
@@ -40,15 +40,15 @@ export const User = sequelize.define<IUserInstance>('users', {
     allowNull: false,
     validate: {
       notEmpty: {
-        msg: "Esse campo não pode ser vazio"
+        msg: "Senha não pode ser vazio"
       },
       len: {
         args: [8, 30],
-        msg: "Este campo deve ter no mínimo 8 caractéres, e no máximo 30 caractéres",
+        msg: "Senha deve ter no mínimo 8 caractéres",
       },
       is: {
         args: /^(?=.*\d)(?=.*[A-Z])[0-9a-zA-Z$]{8,}$/,
-        msg: "Este campo deve ter no mínimo 8 caractéres, 1 número e 1 letra Maiúscula"
+        msg: "Senha deve ter no mínimo 8 caractéres, 1 número e 1 letra Maiúscula"
       }
     }
   },

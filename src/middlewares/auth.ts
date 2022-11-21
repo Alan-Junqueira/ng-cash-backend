@@ -22,10 +22,12 @@ export const Auth = {
     }
 
     if (success) {
+      res.json(success)
       next()
     } else {
       res.status(403);
       res.json({ error: "Não autorizado" })
+      next()
     }
   }
 }

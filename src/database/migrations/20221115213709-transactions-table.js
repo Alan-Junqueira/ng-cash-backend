@@ -10,11 +10,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true
       },
-      balance: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      debitedAccountId: {
+      debited_account_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -24,7 +20,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT'
       },
-      creditedAccountId: {
+      credited_account_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -35,6 +31,14 @@ module.exports = {
         onDelete: 'RESTRICT'
       },
       value: Sequelize.INTEGER,
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false
+      }
     });
   },
 

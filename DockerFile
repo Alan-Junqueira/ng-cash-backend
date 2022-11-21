@@ -1,0 +1,13 @@
+FROM node:16
+
+WORKDIR /home/alan/development
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3333
+
+CMD ["npm", "run", "dev"]

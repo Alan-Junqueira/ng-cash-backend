@@ -8,7 +8,9 @@ export const accountsController = {
   // GET /accounts
   index: async (req: Request, res: Response) => {
     try {
-      const accounts = await Account.findAll()
+      const accounts = await Account.findAll({
+        order: ['id']
+      })
 
       return res.json(accounts)
     } catch (error) {
@@ -36,6 +38,8 @@ export const accountsController = {
   // GET /accounts/:id
   show: async (req: Request, res: Response) => {
     const { id } = req.params
+
+    // console.log('\n\ \n\ \n\ ', id)
 
     try {
       const account = await Account.findByPk(id)
@@ -83,11 +87,13 @@ export const accountsController = {
     }
   },
   getBalance: async (req: Request, res: Response) => {
-    const { token } = req.body
+    const { token } = req.body.data
 
     try {
       const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY as string) as JWT.JwtPayload
       const userId: number = decoded.id
+
+      console.log("ACCOUNTS getBalance: ", userId)
 
       const user = await User.findByPk(userId)
       if (user) {
@@ -101,14 +107,14 @@ export const accountsController = {
 
         if (userAccount) {
           const balance = userAccount.balance
-          return res.send(balance)
+          return res.json({ status: true, balance })
         }
       }
 
     } catch (error) {
-
+      if (error instanceof Error) {
+        return res.json({ status: false, error: error.message })
+      }
     }
-
-
   }
 }

@@ -12,24 +12,34 @@ router.get('/', (req, res) => {
 
 router.get('/users', usersController.index)
 router.get('/users/:id', usersController.show)
-router.post('/users', usersController.save)
 router.put('/users/:id', usersController.update)
 router.delete('/users/:id', usersController.delete)
+router.post('/users', usersController.save)
 router.post('/users/login', usersController.login)
+router.post('/users/getByToken', usersController.getUserByToken)
 
 router.get('/accounts', accountsController.index)
 router.post('/accounts', accountsController.save)
-router.get('/accounts/balance', accountsController.getBalance)
+router.post('/accounts/balance', accountsController.getBalance)
 router.get('/accounts/:id', accountsController.show)
 router.put('/accounts/:id', accountsController.update)
 router.delete('/accounts/:id', accountsController.delete)
 
-router.put('/transactions/transference', Auth.private, transactionsController.transference)
-router.get(
+router.put('/transactions/transference', transactionsController.transference)
+router.post(
   '/transactions/get-all-user-transactions',
-  Auth.private,
   transactionsController.getAllUserTransactions
 )
+router.post(
+  '/transactions/get-all-user-outcome-transactions',
+  transactionsController.getAllUserOutcomeTransactions
+)
+router.post(
+  '/transactions/get-all-user-income-transactions',
+  transactionsController.getAllUserIncomeTransactions
+)
+
+router.get('/validate', Auth.private)
 
 
 export { router }

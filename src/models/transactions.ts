@@ -19,10 +19,6 @@ export const Transaction = sequelize.define<ITransactionInstance>(
       allowNull: false,
       autoIncrement: true
     },
-    balance: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     debitedAccountId: {
       type: DataTypes.INTEGER,
       allowNull: false,
